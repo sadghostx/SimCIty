@@ -1,7 +1,8 @@
 // src/firebase.jsx
 
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth"; 
+// 👈 ADD setPersistence and browserSessionPersistence to your auth imports
+import { getAuth, GoogleAuthProvider, setPersistence, browserSessionPersistence } from "firebase/auth"; 
 import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -19,12 +20,22 @@ const firebaseConfig = {
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase services and export them
+// Initialize Firebase services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// 👈 1. Create the Google Provider instance
+// 👈 NEW: Set Auth Persistence before it is used
+setPersistence(auth, browserSessionPersistence)
+  .then(() => {
+    // Optional: Log that persistence was set (useful for debugging)
+    console.log("Firebase Auth Persistence set to browserSessionPersistence.");
+  })
+  .catch((error) => {
+    console.error("Failed to set auth persistence:", error);
+  });
+
+// 1. Create the Google Provider instance
 const googleProvider = new GoogleAuthProvider();
 
-// 👈 2. Export the Google Provider so Login.jsx can use it
+// 2. Export the Google Provider so Login.jsx can use it
 export { googleProvider };
